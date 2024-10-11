@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 import csv
+import random
+
 
 # Create a blueprint for the quiz logic
 quiz_routes = Blueprint('quiz_routes', __name__)
@@ -21,15 +23,18 @@ def load_questions_from_csv():
         for row in reader:
             # Filter questions by the specified knowledge component
             if row["KnowledgeComponent"] == current_component:
+                options = [row["CorrectAnswer"], row["Option1"], row["Option2"], row["Option3"]]
+                random.shuffle(options)  # Randomize the order of options
                 question_data = {
                     "component": row["KnowledgeComponent"],
                     "question": row["Question"],
                     "correct_answer": row["CorrectAnswer"],
-                    "options": [row["CorrectAnswer"], row["Option1"], row["Option2"], row["Option3"]],
+                    "options": options,
                     "feedback": {  
                         row["Option1"]: row["FeedbackOption1"],
                         row["Option2"]: row["FeedbackOption2"],
-                        row["Option3"]: row["FeedbackOption3"]
+                        row["Option3"]: row["FeedbackOption3"],
+                        row["CorrectAnswer"]: "Correct! Well done."  # Add feedback for correct answer
                     }
                 }
                 questions.append(question_data)
@@ -71,17 +76,15 @@ def submit_answer():
     global current_question, answers, total_score, skill_levels
     user_answer = request.form['user_answer']
     correct_answer = questions[current_question]["correct_answer"]
-    feedback = ""
-
+    
     component = questions[current_question]["component"]
+    feedback = questions[current_question]['feedback'][user_answer]
 
     if user_answer == correct_answer:
-        feedback = "Correct! Well done."
         total_score += 1
         skill_levels[component] += 1  # Increase the skill level for the current component
         answers.append({"question": questions[current_question]["question"], "result": "Correct", "selected": user_answer, "feedback": feedback})
     else:
-        feedback = questions[current_question]['feedback'][user_answer]
         answers.append({"question": questions[current_question]["question"], "result": "Incorrect", "selected": user_answer, "feedback": feedback})
 
     return render_template('quiz.html', question=questions[current_question]["question"], options=questions[current_question]["options"], 
