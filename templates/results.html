@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Quiz Results</h1>
+    </header>
+
+    <section id="results-section">
+        <h2>Your Results:</h2>
+        <ul>
+            {% for answer in answers %}
+                <li>
+                    <strong>Question:</strong> {{ answer["question"] }}<br>
+                    <strong>Result:</strong> <span style="color: {{ 'green' if answer['result'] == 'Correct' else 'red' }}">{{ answer["result"] }}</span><br>
+                    {% if answer["result"] == "Incorrect" %}
+                        <strong>Feedback:</strong> {{ answer["feedback"] }}<br>
+                    {% endif %}
+                </li>
+                <hr>
+            {% endfor %}
+        </ul>
+        <a href="/"><button>Return to Start</button></a>
+    </section>
+</body>
+</html>

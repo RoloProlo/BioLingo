@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+</head>
+<body>
+    <header>
+        <h1>Pre-Quiz</h1>
+        <p>Level: {{ user_level }}</p>
+    </header>
+
+    <section id="quiz-section">
+        <h2>Question</h2>
+        <p>{{ question }}</p>
+        <form action="/submit_answer" method="post">
+            <!-- Display multiple choice options -->
+            {% for option in options %}
+                <input type="radio" id="{{ option }}" name="user_answer" value="{{ option }}" required>
+                <label for="{{ option }}">{{ option }}</label><br>
+            {% endfor %}
+            <button type="submit">Submit Answer</button>
+        </form>
+    </section>
+</body>
+</html>
