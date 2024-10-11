@@ -1,3 +1,9 @@
+/* general stylings */
+h1 {
+    color: red;
+}
+
+
 /* Style for the skill progress section */
 #skill-progress {
     margin: 20px;
