@@ -37,62 +37,6 @@
                 <button type="submit">Next Question</button>
             </form>
         {% endif %}
-
-        <!-- Detailed Skill Progress Section -->
-        <h3>Skill Progress</h3>
-        <div id="skill-progress">
-            {% for component, level in skill_levels.items() %}
-                <!-- Calculate class name dynamically -->
-                {% set progress_class = (
-                    'basics-progress' if component == 'Introduction to Defense Mechanisms' else
-                    'innate-progress' if component == 'Innate Immunity' else
-                    'adaptive-progress' if component == 'Adaptive Immunity' else
-                    'immunity-progress' if component == 'Immunity Types' else
-                    'blood-progress' if component == 'Blood Groups and Rh Factors' else
-                    'virus-progress'
-                ) %}
-
-                <!-- Skill Progress Card -->
-                <div class="card">
-                    <div class="card-content">
-                        <!-- Icon for each component -->
-                        <div class="card-icon">
-                            {% if component == 'Introduction to Defense Mechanisms' %}
-                                <span>🦠</span>
-                            {% elif component == 'Innate Immunity' %}
-                                <span>🩸</span>
-                            {% elif component == 'Adaptive Immunity' %}
-                                <span>🛡️</span>
-                            {% elif component == 'Immunity Types' %}
-                                <span>💉</span>
-                            {% elif component == 'Blood Groups and Rh Factors' %}
-                                <span>🧬</span>
-                            {% else %}
-                                <span>🦠</span> <!-- Default Icon -->
-                            {% endif %}
-                        </div>
-
-                        <!-- Component Title -->
-                        <div class="card-title">
-                            {{ component }}
-                        </div>
-                    </div>
-
-                    <!-- Progress Bar -->
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            {% set width_class = "width-" + (level * 10) | string %}
-                            <div class="progress {{ progress_class }} {{ width_class }}"></div>
-                        </div>
-                    </div>
-
-                    <!-- Percentage Display -->
-                    <div class="progress-percentage">
-                        {{ level * 10 }}%
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
     </section>
 </body>
 </html>

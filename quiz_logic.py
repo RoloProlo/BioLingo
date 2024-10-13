@@ -15,7 +15,7 @@ current_component = "Introduction to Defense Mechanisms"  # Start with Knowledge
 skill_levels = {"Introduction to Defense Mechanisms": 0, "Innate Immunity": 0, "Adaptive Immunity": 0, "Immunity Types": 0, "Blood Groups and Rh Factors": 0, "Viruses and Bacteria": 0}
 
 def load_questions_from_csv():
-    """Load questions, answers, and options from a CSV file filtered by the knowledge component."""
+    """Load questions, answers, options, and difficulty from a CSV file filtered by the knowledge component."""
     global questions
     questions = []
     with open("questions.csv", mode='r') as file:
@@ -29,15 +29,18 @@ def load_questions_from_csv():
                     "component": row["KnowledgeComponent"],
                     "question": row["Question"],
                     "correct_answer": row["CorrectAnswer"],
+                    "difficulty": float(row["Difficulty"]),  # Store the difficulty as a float to handle decimal values
                     "options": options,
                     "feedback": {  
                         row["Option1"]: row["FeedbackOption1"],
                         row["Option2"]: row["FeedbackOption2"],
                         row["Option3"]: row["FeedbackOption3"],
-                        row["CorrectAnswer"]: "Correct! Well done."  # Add feedback for correct answer
+                        row["CorrectAnswer"]: "Correct! Well done."  # Add feedback for the correct answer
                     }
                 }
                 questions.append(question_data)
+
+
 
 
 @quiz_routes.route('/')
@@ -49,6 +52,23 @@ def home():
     total_score = 0  # Reset the total score
 
     # Reset skill levels
+    skill_levels = {component: 0 for component in skill_levels.keys()}
+
+    # Load questions for the specified component
+    load_questions_from_csv()
+
+    return redirect(url_for('quiz_routes.quiz'))
+
+@quiz_routes.route('/start_quiz/<component>')
+def start_quiz(component):
+    """Load questions for the specified knowledge component and start the quiz."""
+    global current_question, answers, total_score, current_component, skill_levels
+    current_question = 0  # Start from the first question
+    answers = []  # Reset answers for a new session
+    total_score = 0  # Reset the total score
+    current_component = component  # Set the current component
+
+    # Reset skill levels if needed
     skill_levels = {component: 0 for component in skill_levels.keys()}
 
     # Load questions for the specified component
@@ -76,20 +96,35 @@ def submit_answer():
     global current_question, answers, total_score, skill_levels
     user_answer = request.form['user_answer']
     correct_answer = questions[current_question]["correct_answer"]
-    
+
     component = questions[current_question]["component"]
+    difficulty = questions[current_question]["difficulty"]  # Get the difficulty value for this question
     feedback = questions[current_question]['feedback'][user_answer]
 
+    # Check if the answer is correct and update the skill level accordingly
+    
     if user_answer == correct_answer:
         total_score += 1
-        skill_levels[component] += 1  # Increase the skill level for the current component
-        answers.append({"question": questions[current_question]["question"], "result": "Correct", "selected": user_answer, "feedback": feedback})
+        skill_levels[component] += difficulty  # Increase the skill level based on the difficulty (now a float)
+        answers.append({"question": questions[current_question]["question"], "result": "Correct", "selected": user_answer, "feedback": feedback, "difficulty": difficulty})
     else:
-        answers.append({"question": questions[current_question]["question"], "result": "Incorrect", "selected": user_answer, "feedback": feedback})
+        answers.append({"question": questions[current_question]["question"], "result": "Incorrect", "selected": user_answer, "feedback": feedback, "difficulty": difficulty})
 
-    return render_template('quiz.html', question=questions[current_question]["question"], options=questions[current_question]["options"], 
-                           current_question=current_question, total=len(questions), answers=answers, feedback=feedback, selected=user_answer, score=total_score, show_feedback=True, skill_levels=skill_levels)
 
+    return render_template(
+        'quiz.html',
+        question=questions[current_question]["question"],
+        options=questions[current_question]["options"], 
+        current_question=current_question,
+        total=len(questions),
+        answers=answers,
+        feedback=feedback,
+        selected=user_answer,
+        score=total_score,
+        show_feedback=True,
+        skill_levels=skill_levels
+    )
+ 
 
 @quiz_routes.route('/next_question', methods=['POST'])
 def next_question():
