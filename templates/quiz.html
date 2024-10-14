@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <header>
@@ -24,16 +24,23 @@
         {% endif %}
 
         <!-- Disable form if feedback is shown -->
-        <form action="/submit_answer" method="post" {% if show_feedback %} style="display: none;" {% endif %}>
+        <form action="{{ url_for('quiz.handle_submit') }}" method="POST" {% if show_feedback %} style="display: none;" {% endif %}>
             {% for option in options %}
                 <input type="radio" id="{{ option }}" name="user_answer" value="{{ option }}" required {% if selected == option %} checked {% endif %}>
-                <label for="{{ option }}">{{ option }}</label><br>
+                <label for="{{ option }}"
+                       {% if show_feedback and option == correct_answer %} style="font-weight: bold;" {% endif %}>
+                    {{ option }}
+                </label><br>
             {% endfor %}
             <button type="submit">Submit Answer</button>
         </form>
 
         {% if show_feedback %}
-            <form action="/next_question" method="post">
+            <!-- Show the correct answer after submitting -->
+            <p><strong>Correct Answer:</strong> {{ correct_answer }}</p>
+
+            <!-- Next Question button appears after submission -->
+            <form action="{{ url_for('quiz.next_question') }}" method="POST">
                 <button type="submit">Next Question</button>
             </form>
         {% endif %}

@@ -3,77 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adaptive Learning System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Immunity Learning Path</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <header>
-        <h1>Adaptive Learning System - Group 01</h1>
-        <p>Select a knowledge component to start learning.</p>
-    </header>
-
-    <!-- Learning Path Section -->
-    <section class="learning-path">
-        <!-- Each component link should include its name to pass to the quiz logic -->
-        <div class="knowledge-component">
-            <a href="{{ url_for('quiz_routes.start_quiz', component='Introduction to Defense Mechanisms') }}" class="component-link active">
-                <div class="circular-progress" style="--progress: 0.1;">
-                    <div class="circular-progress-fill"></div>
-                    <div class="component-icon">🦠</div>
+    <div class="container">
+        <h1>Immunity Learning Path</h1>
+        <div class="path">
+            <!-- Circular progress bars for each knowledge component -->
+            {% for component, level in skill_levels.items() %}
+                <div class="component">
+                    <!-- Display the name of the knowledge component above the progress bar -->
+                    <div class="component-name">{{ component }}</div>
+                    <!-- Make the entire progress bar a clickable link to the quiz -->
+                    <a href="{{ url_for('quiz.quiz', component=component) }}" class="progress-link">
+                        <div class="circular-progress" style="--progress: {{ level }};">
+                            <div class="progress-value">{{ level }}%</div>
+                        </div>
+                    </a>
                 </div>
-                <div class="component-title">Introduction</div>
-            </a>            
+            {% endfor %}
         </div>
-
-        <div class="knowledge-component">
-            <a href="#" class="component-link locked">
-                <div class="circular-progress" style="--progress: 0.0;">
-                    <div class="circular-progress-fill"></div>
-                    <div class="component-icon">🩸</div>
-                </div>
-                <div class="component-title">Innate Immunity</div>
-            </a>
-        </div>
-
-        <div class="knowledge-component">
-            <a href="#" class="component-link locked">
-                <div class="circular-progress" style="--progress: 0.0;">
-                    <div class="circular-progress-fill"></div>
-                    <div class="component-icon">🛡️</div>
-                </div>
-                <div class="component-title">Adaptive Immunity</div>
-            </a>
-        </div>
-
-        <div class="knowledge-component">
-            <a href="#" class="component-link locked">
-                <div class="circular-progress" style="--progress: 0.0;">
-                    <div class="circular-progress-fill"></div>
-                    <div class="component-icon">💉</div>
-                </div>
-                <div class="component-title">Immunity Types</div>
-            </a>
-        </div>
-
-        <div class="knowledge-component">
-            <a href="#" class="component-link locked">
-                <div class="circular-progress" style="--progress: 0.0;">
-                    <div class="circular-progress-fill"></div>
-                    <div class="component-icon">🧬</div>
-                </div>
-                <div class="component-title">Blood Groups</div>
-            </a>
-        </div>
-
-        <div class="knowledge-component">
-            <a href="#" class="component-link locked">
-                <div class="circular-progress" style="--progress: 0.0;">
-                    <div class="circular-progress-fill"></div>
-                    <div class="component-icon">🦠</div>
-                </div>
-                <div class="component-title">Viruses and Bacteria</div>
-            </a>
-        </div>
-    </section>
+    </div>
 </body>
 </html>
