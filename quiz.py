@@ -1,12 +1,15 @@
 import csv
 import random
 from flask import Blueprint, request, render_template, redirect, url_for
+from shared import skill_levels  # Import skill_levels from shared.py
 
 quiz_routes = Blueprint('quiz', __name__)  # Blueprint definition
 
 answers = []  # List to keep track of user answers and results
 current_question = 0
 score = 0
+
+increment_per_question = 0  # Increment value for each correct answer
 
 
 # Function to load questions from the CSV based on the knowledge component
@@ -22,6 +25,7 @@ def load_questions_for_component(component):
                     "question": row['Question'],
                     "options": options,
                     "correct_answer": row['CorrectAnswer'],
+                    "difficulty": float(row['Difficulty']),  # Add difficulty level
                     "feedback": {
                         row['Option1']: row['FeedbackOption1'],
                         row['Option2']: row['FeedbackOption2'],
@@ -31,64 +35,80 @@ def load_questions_for_component(component):
                 })
     return questions
 
-# Function to submit the user's answer and provide feedback
-def submit_answer(user_answer, correct_answer, current_question, questions):
-    feedback = questions[current_question]['feedback'][user_answer]
-
-    if user_answer == correct_answer:
-        result = "Correct!"
-    else:
-        result = "Incorrect"
-
-    return {
-        'result': result,
-        'feedback': feedback,
-        'correct_answer': correct_answer,
-        'user_answer': user_answer
-    }
-
-# Route for starting the quiz
 @quiz_routes.route('/quiz/<component>')
 def quiz(component):
-    global questions, current_question
-    questions = load_questions_for_component(component)
-    # Uncommented this block to handle the end of the quiz properly:
-    if current_question >= len(questions):
-        return redirect(url_for('home'))  # If no more questions, go to home screen
+    global questions, current_question, score, answers, current_component, increment_per_question
 
+    # Set the current component being used
+    current_component = component
+
+    # Reset current question index when starting a new quiz
+    current_question = 0
+    score = 0
+    answers = []
+    questions = load_questions_for_component(component)
+
+    # Calculate the increment per correct answer
+    if len(questions) > 0:
+        increment_per_question = 100 / len(questions)
+    else:
+        increment_per_question = 0
+
+    # If no questions are available, redirect to home
+    if len(questions) == 0:
+        return redirect(url_for('home'))
+
+    # Extract current question details
     question = questions[current_question]['question']
     options = questions[current_question]['options']
-    return render_template('quiz.html', question=question, options=options, current_question=current_question)
+    correct_answer = questions[current_question]['correct_answer']
 
-# Route for submitting the answer
+    return render_template('quiz.html', 
+                           question=question, 
+                           options=options, 
+                           current_question=current_question, 
+                           correct_answer=correct_answer,  # Pass correct answer to the template
+                           total=len(questions))
+
 @quiz_routes.route('/submit_answer', methods=['POST'])
 def handle_submit():
-    global current_question, score, answers
+    global current_question, score, answers, current_component, skill_levels
+
     user_answer = request.form['user_answer']
     correct_answer = questions[current_question]['correct_answer']
-    result_data = submit_answer(user_answer, correct_answer, current_question, questions)
+
+    # Generate feedback and determine if the answer is correct
+    feedback = questions[current_question]['feedback'][user_answer]
+    if user_answer == correct_answer:
+        result = "Correct!"
+        score += 1  # Increment score if correct
+        
+        # Update skill level for the current component
+        skill_levels[current_component] += increment_per_question
+        # Ensure skill level does not exceed 100
+        if skill_levels[current_component] > 100:
+            skill_levels[current_component] = 100
+    else:
+        result = "Incorrect"
 
     # Add the current question and result to the answers list
     answers.append({
         "question": questions[current_question]["question"],
-        "result": result_data["result"],
-        "feedback": result_data["feedback"]
+        "result": result,
+        "feedback": feedback
     })
 
-    # If the answer is correct, increase the score
-    if result_data['result'] == "Correct!":
-        score += 1
+    print(f"Updated skill level for {current_component}: {skill_levels[current_component]}")
 
     # Show feedback and allow moving to the next question
     return render_template('quiz.html',
                            question=questions[current_question]['question'],
                            options=questions[current_question]['options'],
                            current_question=current_question,
-                           feedback=result_data['feedback'],
-                           correct_answer=result_data['correct_answer'],  # Pass correct answer
-                           user_answer=result_data['user_answer'],  # Pass user's answer
+                           feedback=feedback,
+                           correct_answer=correct_answer,  # Pass correct answer
+                           user_answer=user_answer,  # Pass user's answer
                            show_feedback=True)  # Enable feedback display
-
 
 # Route to move to the next question
 @quiz_routes.route('/next_question', methods=['POST'])
@@ -101,10 +121,13 @@ def next_question():
     if current_question < len(questions):
         question = questions[current_question]['question']
         options = questions[current_question]['options']
+        correct_answer = questions[current_question]['correct_answer']  # Extract correct answer
+
         return render_template('quiz.html', 
                                question=question, 
                                options=options, 
                                current_question=current_question, 
+                               correct_answer=correct_answer,  # Pass correct answer to the template
                                total=len(questions),
                                show_feedback=False)
     else:
@@ -113,4 +136,3 @@ def next_question():
                                answers=answers,  # List of answered questions with feedback
                                score=score,      # Total score
                                total=len(questions))  # Total number of questions
-

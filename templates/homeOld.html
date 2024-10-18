@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immunity Learning Path</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Immunity Learning Path</h1>
+        <div class="path">
+            <!-- Circular progress bars for each knowledge component -->
+            {% for index, component in component_order %}
+                <div class="component">
+                    <div class="component-name">{{ component }}</div>
+                    {% if index == 0 or skill_levels[component_order[index - 1][1]] > 80 %}
+                        <!-- If it's the first component or the previous component is mastered, render as active -->
+                        <a href="{{ url_for('quiz.quiz', component=component) }}" class="progress-link">
+                            <div class="circular-progress" style="--progress: {{ skill_levels[component] | round(1) }};">
+                                <div class="progress-value">{{ skill_levels[component] | round(1) }}%</div>
+                            </div>
+                        </a>
+                    {% else %}
+                        <!-- If not unlocked, show link but make it inactive -->
+                        <a class="progress-link locked">
+                            <div class="circular-progress" style="--progress: {{ skill_levels[component] | round(1) }};">
+                                <div class="progress-value">{{ skill_levels[component] | round(1) }}%</div>
+                            </div>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

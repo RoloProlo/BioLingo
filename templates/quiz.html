@@ -28,8 +28,8 @@
             {% for option in options %}
                 <input type="radio" id="{{ option }}" name="user_answer" value="{{ option }}" required {% if selected == option %} checked {% endif %}>
                 <label for="{{ option }}"
-                       {% if show_feedback and option == correct_answer %} style="font-weight: bold;" {% endif %}>
-                    {{ option }}
+                    {% if option == correct_answer %} style="font-weight: bold;" {% endif %}>
+                {{ option }}
                 </label><br>
             {% endfor %}
             <button type="submit">Submit Answer</button>

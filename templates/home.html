@@ -1,29 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immunity Learning Path</title>
     <link rel="stylesheet" href="/static/style.css">
+    <title>Home - Biolingo</title>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Immunity Learning Path</h1>
-        <div class="path">
-            <!-- Circular progress bars for each knowledge component -->
-            {% for component, level in skill_levels.items() %}
-                <div class="component">
-                    <!-- Display the name of the knowledge component above the progress bar -->
-                    <div class="component-name">{{ component }}</div>
-                    <!-- Make the entire progress bar a clickable link to the quiz -->
-                    <a href="{{ url_for('quiz.quiz', component=component) }}" class="progress-link">
-                        <div class="circular-progress" style="--progress: {{ level }};">
-                            <div class="progress-value">{{ level }}%</div>
-                        </div>
-                    </a>
+    <div class="main-content">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-green">bio</span><span class="logo-purple">lingo</span>
+            </div>
+            <div class="user-icon">
+                <img src="/static/user_icon.png" alt="User Icon">
+            </div>
+        </header>
+
+        <div class="main-content" style="display: flex; justify-content: space-between; padding: 40px; width: 100%;">
+            <!-- Character Section -->
+            <div class="character-section">
+                <img src="/static/Avatar.png" alt="Character">
+                <div class="next-lesson">
+                    <button class="lesson-button">Infection and Sickness ▶️</button>
                 </div>
-            {% endfor %}
+            </div>
+
+            <!-- Chapter Progress Section -->
+            <div class="chapter-progress">
+                <!-- Chapter Progress Bar -->
+                <div class="chapter-bar">
+                    <div class="chapter-bar-progress"></div>
+                    <p>Chapter 1: Introduction to defense mechanisms (33%)</p>
+                </div>
+
+                <!-- Chapter Steps -->
+                <div class="chapter-steps">
+                    <!-- Step 1 -->
+                    <div class="step step-1">
+                        <img src="/static/play_circle.png" alt="Step 1">
+                        <p>Defense mechanism and immune system</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="step step-2">
+                        <img src="/static/disabled_circle.png" alt="Step 2">
+                        <p>Infection and Sickness</p>
+                    </div>
+
+                    <!-- Step 3 (Disabled) -->
+                    <div class="step step-3 disabled">
+                        <img src="/static/disabled_circle.png" alt="Step 3">
+                        <p>Pathogens</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>
+
 </html>
