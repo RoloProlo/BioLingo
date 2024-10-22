@@ -47,6 +47,37 @@ body {
     word-wrap: break-word;
 }
 
+/* ======================= BASICS ================================= BUTTONS ===========*/
+
+
+/* button {
+    background-color: #60587F;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+} */
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button[disabled] {
+    background-color: grey;
+    cursor: not-allowed;
+}
+
+
+button:hover {
+    background-color: #50476F;
+}
+
 /* =========== START ========= KAART ===========*/
 
 .start-card {
@@ -346,6 +377,63 @@ body {
         height: 80px;
     }
 }
+/* ===================================== Lesson Page Styling ==============================*/
+/* Lesson Page */
+.lesson-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 50px;
+    text-align: center;
+}
+
+.lesson-content {
+    margin-top: 20px;
+}
+
+.arrow-button {
+    font-size: 24px;
+    background-color: #60587F;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.arrow-button:hover {
+    background-color: #50476F;
+}
+
+.start-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: grey;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: not-allowed;
+}
+
+.start-button.disabled {
+    background-color: grey;
+    cursor: not-allowed;
+}
+
+.start-button.enabled {
+    background-color: #4285F4;
+    cursor: pointer;
+}
+
+.start-button:hover {
+    background-color: #357ae8;
+}
+
+
 
 
 /* =========== HIERONDER ========= HOME ===========*/
@@ -426,18 +514,7 @@ h1 {
     text-align: center;
 }
 
-button {
-    background-color: #60587F;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
 
-button:hover {
-    background-color: #50476F;
-}
 
 /* Correct colors */
 .correct {

@@ -1,9 +1,26 @@
 from flask import Blueprint, render_template
+import csv
 
-# Define a Blueprint for home
 home = Blueprint('home', __name__, template_folder='templates')
+
+
+def load_completed_kcs():
+    csv_file_path = 'data/completed_kcs.csv'
+    completed_kcs = []
+    try:
+        with open(csv_file_path, mode='r') as file:
+            csv_reader = csv.reader(file)
+            completed_kcs = [row[0] for row in csv_reader]
+    except FileNotFoundError:
+        pass  # If the file doesn't exist yet, return an empty list
+    return completed_kcs
 
 @home.route('/home')
 def home_route():
-    # Render the Chapter 1 screen
-    return render_template('home.html')
+    # Load completed KCs from the CSV file
+    completed_kcs = load_completed_kcs()
+    print(completed_kcs)
+    print("vreemd")  # Add this line to debug and check the completed KCs
+
+    # Pass completed KCs to the template
+    return render_template('home.html', completed_kcs=completed_kcs)

@@ -1,0 +1,49 @@
+<!-- kcquiz.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>KC Quiz</title>
+</head>
+<body>
+    <div class="quiz-content">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-green">bio</span><span class="logo-purple">lingo</span>
+            </div>
+        </header>
+
+        <div class="question-card">
+            <h2 class="question-title">Question {{ current_index + 1 }} of {{ total }}</h2>
+            <p class="question-text">{{ question['question'] }}</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('kcquiz.kcquiz_route', kc=request.path.split('/')[-1]) }}">
+            <div class="answers">
+                {% for option in question['options'] %}
+                    <label class="answer-option">
+                        <input type="radio" name="option" value="{{ option }}" required>
+                        {{ option }}
+                    </label>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="current_index" value="{{ current_index }}">
+            <input type="hidden" name="score" value="{{ score }}">
+
+            <div class="quiz-footer">
+                <div class="progress-bar">
+                    {% for i in range(0, current_index) %}
+                        <div class="progress-bar-segment filled"></div>
+                    {% endfor %}
+                    {% for i in range(current_index, total) %}
+                        <div class="progress-bar-segment"></div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="next-button">Next</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

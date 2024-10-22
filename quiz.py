@@ -15,10 +15,10 @@ increment_per_question = 0  # Increment value for each correct answer
 # Function to load questions from the CSV based on the knowledge component
 def load_questions_for_component(component):
     questions = []
-    with open('questions.csv', newline='') as csvfile:
+    with open('prequiz.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            if row['KnowledgeComponent'] == component:
+            if row['KC'] == component:
                 options = [row['CorrectAnswer'], row['Option1'], row['Option2'], row['Option3']]
                 random.shuffle(options)  # Randomize the order of options
                 questions.append({

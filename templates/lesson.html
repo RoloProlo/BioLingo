@@ -1,0 +1,39 @@
+<!-- lesson.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Lesson</title>
+</head>
+
+<body>
+    <div class="lesson-container">
+        <!-- Display the current lesson content -->
+        <p>{{ lesson_text }}</p>
+
+        <!-- Back and Next buttons -->
+        <form method="POST" action="{{ url_for('lesson.lesson_route') }}">
+            <input type="hidden" name="current_index" value="{{ current_index }}">
+
+            <!-- Back button -->
+            <button type="submit" class="next-button" name="back" {% if disable_back %} disabled {% endif %}>⬅️ Back</button>
+
+            <!-- Next button (disabled if it's the last sub-KC in the major KC) -->
+            <button type="submit" class="next-button" name="next" {% if disable_next %} disabled {% endif %}>➡️ Next</button>
+        </form>
+
+        <!-- Start Questions button (enabled only if it's the last sub-KC in the major KC) -->
+        {% if is_last_in_section %}
+        <form method="GET" action="{{ url_for('kcquiz.kcquiz_route', kc=current_kc) }}">
+            <button type="submit" style="background-color: #4285F4; color: white;">Start Questions</button>
+        </form>
+        {% else %}
+        <button style="background-color: grey;" disabled>Start Questions</button>
+        {% endif %}
+    </div>
+</body>
+
+</html>

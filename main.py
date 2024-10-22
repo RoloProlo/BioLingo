@@ -5,6 +5,10 @@ from prequiz import load_prequiz_data
 from shared import skill_levels, component_order  # Import skill_levels from shared.py
 from prequiz import prequiz  # Import the prequiz Blueprint
 from home import home  # Import the home blueprint
+from lesson import lesson  # Import the lesson blueprint
+from kcquiz import kcquiz  # Import the new KCquiz Blueprint
+
+
 
 app = Flask(__name__)
 
@@ -12,6 +16,9 @@ app = Flask(__name__)
 app.register_blueprint(quiz_routes)
 app.register_blueprint(prequiz, url_prefix='/prequiz')
 app.register_blueprint(home, url_prefix='/home')
+app.register_blueprint(lesson, url_prefix='/lesson')
+app.register_blueprint(kcquiz, url_prefix='/kcquiz')  # Register the KCquiz Blueprint
+
 
 
 @app.route('/')
@@ -38,7 +45,7 @@ def prequiz_route():
 
 
 @app.route('/home')
-def home():
+def home_route():
     global current_question, score, answers, questions
     # Reset the quiz state
     current_question = 0
