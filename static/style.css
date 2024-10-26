@@ -78,10 +78,23 @@ button:hover {
     background-color: #50476F;
 }
 
+/* =========== START ========= LAYOUT ===========*/
+
+.start-flex-layout-row{
+    /* background-color: #228142; */
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    height: 90vh;
+    align-items: center;
+    gap: 100px;
+}
+
 /* =========== START ========= KAART ===========*/
 
 .start-card {
-    width: 400px;
+    width: 350px;
+    max-height: 400px;
     padding: 20px;
     background: #FFFFFF;
     border-radius: 5px;
@@ -102,14 +115,14 @@ button:hover {
 }
 
 .avatar {
-    width: 150px;
+    width: 200px;
     height: auto;
     margin-top: 10px;
 }
 
 
 /* =========== START ========= KNOPPEN ===========*/
-.assesment-section h2 {
+.assessment-section h2 {
     color: #60587F;
     font-size: 20px;
     font-weight: 700;
@@ -117,14 +130,14 @@ button:hover {
     word-wrap: break-word;
 }
 
-.assesment-buttons {
+.assessment-buttons {
     display: flex;
     justify-content: center;
     gap: 20px;
     margin-top: 10px;
 }
 
-.assesment-button {
+.assessment-button {
     background: #60587F;
     color: white;
     font-size: 16px;
@@ -135,6 +148,7 @@ button:hover {
     cursor: pointer;
     transition: background 0.3s ease;
 }
+
 /* =========== QUIZ CONTENT ===========*/
 
 .question-card {
