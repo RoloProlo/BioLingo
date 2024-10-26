@@ -14,6 +14,7 @@
             </div>
         </header>
 
+        <main class="prequiz-layout-column">
         <div class="question-card">
             <h2 class="question-title">Question {{ current_index + 1 }} of {{ total }}</h2>
             <p class="question-text">{{ question['question'] }}</p>
@@ -42,6 +43,7 @@
                 <button type="submit" class="next-button">Next</button>
             </div>
         </form>
+    </main>
     </div>
 </body>
 </html>

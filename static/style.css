@@ -177,22 +177,31 @@ button:hover {
     font-weight: 400;
 }
 
+.prequiz-layout-column{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+    height: 90vh;
+}
+
 /* =========== ANSWERS SECTION ===========*/
 
 .answers {
     margin-top: 20px;
+    margin-left: 20px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: 15px;
-    width: 100%;
+    width: 70%;
+    height: 100%;
+
 }
 
 .answer-option {
     display: flex;
     align-items: center;
     color: #60587F;
-    background: #ffffff;
     border-radius: 4px;
     padding: 10px;
     cursor: pointer;
@@ -202,11 +211,13 @@ button:hover {
 }
 
 .answer-option:hover {
-    background: #F2F4F7;
+    /* background: #F2F4F7; */
+    font-weight: 800;
 }
 
 .answer-option input[type="radio"] {
     margin-right: 10px;
+    color:#60587F;
 }
 
 /* =========== QUIZ FOOTER ===========*/
@@ -215,14 +226,15 @@ button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 80%;
-    max-width: 800px;
+    /* width: 80%; */
+    /* max-width: 800px; */
     margin-top: 20px;
 }
 
 .progress-bar {
     display: flex;
     gap: 10px;
+    margin-right: 10px;
 }
 
 .progress-bar-segment {
