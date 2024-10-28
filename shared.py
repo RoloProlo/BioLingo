@@ -18,3 +18,20 @@ component_order = [
     "Blood Groups and Rh Factors",
     "Viruses and Bacteria"
 ]
+
+# shared.py
+
+# Store skill levels by KC
+stereotypes = {
+    "1.1": "novice",
+    "1.2": "novice",
+    "1.3": "novice"
+}
+
+# Define the order of components (if needed)
+component_order = [
+    "Introduction to Defense Mechanisms", 
+    "Innate Immunity",
+    "Adaptive Immunity"
+]
+

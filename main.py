@@ -2,7 +2,7 @@ from flask import Flask, render_template
 from quiz import load_questions_for_component  # Importing the function from quiz.py
 from quiz import quiz_routes  # Import the quiz Blueprint
 from prequiz import load_prequiz_data
-from shared import skill_levels, component_order  # Import skill_levels from shared.py
+from shared import skill_levels, component_order, stereotypes  # Import skill_levels from shared.py
 from prequiz import prequiz  # Import the prequiz Blueprint
 from home import home  # Import the home blueprint
 from lesson import lesson  # Import the lesson blueprint
@@ -53,7 +53,7 @@ def home_route():
     answers = []
     questions = []
     enumerated_components = list(enumerate(component_order))
-    return render_template('home.html', skill_levels=skill_levels, component_order=enumerated_components)
+    return render_template('home.html', skill_levels=skill_levels, component_order=enumerated_components, stereotypes = stereotypes)
 
 if __name__ == "__main__":
     app.run(debug=True)
