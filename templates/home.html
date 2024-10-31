@@ -41,11 +41,12 @@
 
                     <!-- Step 2: Infection and Sickness -->
                     <div class="step step-2">
-                        <a href="{% if '1.1' in completed_kcs %}{{ url_for('lesson.lesson_route', kc='1.2') }}{% else %}#{% endif %}">
+                        <a href="{% if '1.1' in completed_kcs %}{{ url_for('lesson.lessons_by_kc', kc='1.2') }}{% else %}#{% endif %}">
                             <img src="{% if '1.2' in completed_kcs %}/static/checked_circle.png{% elif '1.1' in completed_kcs %}/static/play_circle.png{% else %}/static/disabled_circle.png{% endif %}" alt="Step 2">
                             <p>Infection and Sickness</p>
                         </a>
                     </div>
+
 
                     <!-- Step 3: Pathogens -->
                     <div class="step step-3">

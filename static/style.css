@@ -185,7 +185,7 @@ button:hover {
     height: 90vh;
 }
 
-/* =========== ANSWERS SECTION ===========*/
+/* ============================================================= ANSWERS SECTION ===========*/
 
 .answers {
     margin-top: 20px;
@@ -219,8 +219,121 @@ button:hover {
     margin-right: 10px;
     color:#60587F;
 }
+/* ============================================ FEEDBACK BOX =========================================*/
 
-/* =========== QUIZ FOOTER ===========*/
+/* Feedback box styling */
+.feedback-box {
+    display: none; /* Hidden by default */
+    border: 1px solid #ffcccc;
+    padding: 10px;
+    margin-top: 20px;
+    border-radius: 8px;
+    background-color: #ffe6e6;
+    color: #663333;
+}
+.feedback-box.visible {
+    display: block;
+}
+.feedback-box .feedback-title {
+    font-weight: bold;
+    color: #d9534f;
+    display: flex;
+    align-items: center;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+.feedback-box .feedback-title .icon {
+    font-size: 1.5em;
+    margin-right: 5px;
+}
+
+
+/* =========== TIJDELIJKE CSS CODE VOOR RESULTS PAGE, SORRY LUKT EVEN NIET OM OUDE CODE TE PAKKEN ===========*/
+/* Results Page Specific Styling */
+
+/* Main container for the results page */
+.results-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+/* Card for the entire results display */
+.result-card {
+    background-color: #f8f9fa;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+/* Title styling for the results */
+.result-title {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+}
+
+/* Each question result */
+.result-question {
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
+/* Question title */
+.result-question h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Correct and incorrect answer feedback */
+.feedback-correct {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.feedback-incorrect {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Divider line between questions */
+hr {
+    border: 0.5px solid #ddd;
+    margin: 20px 0;
+}
+
+/* Back button styling */
+.action-button .back-button {
+    background-color: #60587F;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.action-button .back-button:hover {
+    background-color: #50476F;
+}
+
+
+
+/* ========================================= QUIZ FOOTER ===============================*/
+
+
 
 .quiz-footer {
     display: flex;

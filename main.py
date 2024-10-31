@@ -1,11 +1,7 @@
-from flask import Flask, render_template
-from quiz import load_questions_for_component  # Importing the function from quiz.py
-from quiz import quiz_routes  # Import the quiz Blueprint
-from prequiz import load_prequiz_data
-from shared import skill_levels, component_order, stereotypes  # Import skill_levels from shared.py
-from prequiz import prequiz  # Import the prequiz Blueprint
+from flask import Flask, render_template, redirect, url_for
+from prequiz import load_prequiz_data, prequiz  # Import prequiz blueprint and functions
 from home import home  # Import the home blueprint
-from lesson import lesson  # Import the lesson blueprint
+from lesson import lesson  # Import lesson blueprint
 from kcquiz import kcquiz  # Import the new KCquiz Blueprint
 
 
@@ -13,11 +9,11 @@ from kcquiz import kcquiz  # Import the new KCquiz Blueprint
 app = Flask(__name__)
 
 # Register Blueprints
-app.register_blueprint(quiz_routes)
 app.register_blueprint(prequiz, url_prefix='/prequiz')
 app.register_blueprint(home, url_prefix='/home')
-app.register_blueprint(lesson, url_prefix='/lesson')
+app.register_blueprint(lesson, url_prefix='/lesson')  # Register with a URL prefix
 app.register_blueprint(kcquiz, url_prefix='/kcquiz')  # Register the KCquiz Blueprint
+
 
 
 
@@ -31,6 +27,7 @@ def prequiz_route():
     current_index = 0
     score = 0
     questions = load_prequiz_data()
+    selected_options = {}  # Initialize selected_options as an empty dictionary
 
     if not questions:
         return "No questions available."
@@ -40,20 +37,15 @@ def prequiz_route():
         question=questions[current_index],
         current_index=current_index,
         score=score,
-        total=len(questions)
+        total=len(questions),
+        selected_options=selected_options  # Pass selected_options on the initial load
     )
 
 
 @app.route('/home')
 def home_route():
-    global current_question, score, answers, questions
-    # Reset the quiz state
-    current_question = 0
-    score = 0
-    answers = []
-    questions = []
-    enumerated_components = list(enumerate(component_order))
-    return render_template('home.html', skill_levels=skill_levels, component_order=enumerated_components, stereotypes = stereotypes)
+    return redirect(url_for('home.home_route'))
+
 
 if __name__ == "__main__":
     app.run(debug=True)

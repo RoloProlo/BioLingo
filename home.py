@@ -19,8 +19,7 @@ def load_completed_kcs():
 def home_route():
     # Load completed KCs from the CSV file
     completed_kcs = load_completed_kcs()
-    print(completed_kcs)
-    print("vreemd")  # Add this line to debug and check the completed KCs
+    print(f"Completed KCs loaded: {completed_kcs}")
 
     # Pass completed KCs to the template
     return render_template('home.html', completed_kcs=completed_kcs)

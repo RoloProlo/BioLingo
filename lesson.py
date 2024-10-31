@@ -21,58 +21,82 @@ def load_lesson_data():
             })
     return lesson_data
 
+@lesson.route('/lessons/<kc>', methods=['GET'])
+def lessons_by_kc(kc):
+    # Load all lessons from the CSV file
+    csv_file_path = "data/lessons.csv"
+    lessons = []
+
+    with open(csv_file_path, mode='r') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            if row['KC'].startswith(kc):
+                lessons.append({
+                    'kc': row['KC'],
+                    'text': row['text'],
+                    'title': row['title']
+                })
+
+    # If lessons are found, start with the first lesson
+    if lessons:
+        current_index = 0
+        current_lesson = lessons[current_index]
+
+        return render_template(
+            'lesson.html',
+            lesson_text=current_lesson['text'],
+            current_index=current_index,
+            current_kc=current_lesson['kc'],
+            disable_back=True,
+            disable_next=len(lessons) == 1,
+            is_last_in_section=len(lessons) == 1
+        )
+
+    # If no lessons found, handle gracefully (e.g., show an error page or message)
+    return "No lessons found for this KC", 404
+
+
+
 @lesson.route('/lesson', methods=['GET', 'POST'])
 def lesson_route():
-    lesson_data = load_lesson_data()
-
-    # Determine the current index based on form submission (defaults to 0)
+    kc_prefix = request.args.get('kc') or request.form.get('kc')
     current_index = int(request.form.get('current_index', 0))
 
-    # Handle "Next" button press
-    if request.method == 'POST' and 'next' in request.form:
-        current_index += 1
-        if current_index >= len(lesson_data):  # Prevent out of range errors
-            current_index = len(lesson_data) - 1
+    # Load all lessons that match the given KC prefix
+    csv_file_path = "data/lessons.csv"
+    lessons = []
 
-    # Handle "Back" button press
-    if request.method == 'POST' and 'back' in request.form:
-        current_index -= 1
-        if current_index < 0:  # Prevent negative index errors
-            current_index = 0
+    with open(csv_file_path, mode='r') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            if row['KC'].startswith(kc_prefix):
+                lessons.append({
+                    'kc': row['KC'],
+                    'text': row['text'],
+                    'title': row['title']
+                })
 
-    # Get the current and previous topics for comparison
-    current_kc = lesson_data[current_index]['kc']  # Extract current KC
-    current_major_kc = current_kc.rsplit('.', 1)[0]  # Get the major KC (e.g., "1.1")
+    # Determine which lesson to show based on current index
+    if request.method == 'POST':
+        if 'next' in request.form and current_index < len(lessons) - 1:
+            current_index += 1
+        elif 'back' in request.form and current_index > 0:
+            current_index -= 1
 
-    # Check if the next KC belongs to a different major KC (e.g., from "1.1" to "1.2")
-    if current_index + 1 < len(lesson_data):
-        next_kc = lesson_data[current_index + 1]['kc']
-        next_major_kc = next_kc.rsplit('.', 1)[0]
-    else:
-        next_major_kc = current_major_kc  # If at the end, assume no change
+    # Get the current lesson content
+    current_lesson = lessons[current_index]
 
-    # Check if the current KC is the last sub-KC of the current major KC
-    is_last_in_section = current_major_kc != next_major_kc
+    # Determine if navigation buttons should be disabled
+    disable_back = current_index == 0
+    disable_next = current_index == len(lessons) - 1
+    is_last_in_section = current_index == len(lessons) - 1
 
-    # Disable "Next" button if the next major KC will be different
-    disable_next = is_last_in_section
-
-    if current_index - 1 >= 0:
-        previous_kc = lesson_data[current_index - 1]['kc']
-        previous_major_kc = previous_kc.rsplit('.', 1)[0]
-    else:
-        previous_major_kc = current_major_kc  # Prevent going to negative index
-
-    # Disable "Back" button if the previous KC belongs to a different major KC
-    disable_back = current_major_kc != previous_major_kc
-
-    # Pass data to the template, including the current KC
     return render_template(
         'lesson.html',
-        lesson_text=lesson_data[current_index]['content'],
+        lesson_text=current_lesson['text'],
         current_index=current_index,
-        disable_next=disable_next,  # Disable next if the current KC is the last sub-KC of the major KC
-        disable_back=disable_back,  # Disable back if the previous KC is from a different major KC
-        is_last_in_section=is_last_in_section,  # True if it's the last sub-KC in the current major KC
-        current_kc=current_kc  # Pass the current KC to the template
+        current_kc=current_lesson['kc'],
+        disable_back=disable_back,
+        disable_next=disable_next,
+        is_last_in_section=is_last_in_section
     )

@@ -1,4 +1,3 @@
-<!-- kcquiz.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,35 +14,66 @@
             </div>
         </header>
 
-        <div class="question-card">
-            <h2 class="question-title">Question {{ current_index + 1 }} of {{ total }}</h2>
-            <p class="question-text">{{ question['question'] }}</p>
-        </div>
-
-        <form method="POST" action="{{ url_for('kcquiz.kcquiz_route', kc=request.path.split('/')[-1]) }}">
-            <div class="answers">
-                {% for option in question['options'] %}
-                    <label class="answer-option">
-                        <input type="radio" name="option" value="{{ option }}" required>
-                        {{ option }}
-                    </label>
-                {% endfor %}
+        <main class="prequiz-layout-column">
+            <div class="question-card">
+                <h2 class="question-title">Question {{ current_index + 1 }} of {{ total }}</h2>
+                <p class="question-text">{{ question['question'] }}</p>
             </div>
-            <input type="hidden" name="current_index" value="{{ current_index }}">
-            <input type="hidden" name="score" value="{{ score }}">
 
-            <div class="quiz-footer">
-                <div class="progress-bar">
-                    {% for i in range(0, current_index) %}
-                        <div class="progress-bar-segment filled"></div>
-                    {% endfor %}
-                    {% for i in range(current_index, total) %}
-                        <div class="progress-bar-segment"></div>
+            <form method="POST" action="{{ url_for('kcquiz.kcquiz_route', kc=kc) }}" onsubmit="setIsNext()">
+                <div class="answers">
+                    {% for option in question['options'] %}
+                        <label class="answer-option {{ 'selected' if selected_option == option else '' }}">
+                            <input type="radio" name="option" value="{{ option }}"
+                                   {% if disable_options %}disabled{% endif %}
+                                   {% if selected_option == option %}checked{% endif %}>
+                            {{ option }}
+                        </label>
                     {% endfor %}
                 </div>
-                <button type="submit" class="next-button">Next</button>
-            </div>
-        </form>
+                
+                <!-- Feedback Box: Always Visible -->
+                <div class="feedback-box" style="display: block; border: 1px solid #e0e0e0; padding: 10px; margin-top: 20px; background-color: #f8f9fa;">
+                    {% if feedback %}
+                        <p><strong>{{ feedback }}</strong></p>
+                    {% else %}
+                        <p style="color: #888;">Submit your answer to see feedback here.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Hidden fields to maintain state -->
+                <input type="hidden" name="current_index" value="{{ current_index }}">
+                <input type="hidden" name="score" value="{{ score }}">
+                <input type="hidden" name="attempts" value="{{ attempts }}">
+                <input type="hidden" name="is_next" id="is_next" value="false">
+
+                <div class="quiz-footer">
+                    <div class="progress-bar">
+                        {% for i in range(0, current_index) %}
+                            <div class="progress-bar-segment filled"></div>
+                        {% endfor %}
+                        {% for i in range(current_index, total) %}
+                            <div class="progress-bar-segment"></div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="next-button" id="submitButton">{{ button_text }}</button>
+                </div>
+            </form>
+        </main>
     </div>
+
+    <script>
+        function setIsNext() {
+            const submitButton = document.getElementById("submitButton");
+            const isNextField = document.getElementById("is_next");
+
+            // Set `is_next` based on button text
+            if (submitButton.innerText.trim() === "Next") {
+                isNextField.value = "true";
+            } else {
+                isNextField.value = "false";
+            }
+        }
+    </script>
 </body>
 </html>

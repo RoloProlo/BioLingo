@@ -1,5 +1,6 @@
 import csv
 import random
+import json
 from flask import Blueprint, render_template, request, redirect, url_for
 
 prequiz = Blueprint('prequiz', __name__, template_folder='templates')
@@ -7,17 +8,15 @@ prequiz = Blueprint('prequiz', __name__, template_folder='templates')
 # Path to the stereotypes CSV file
 STEREOTYPES_FILE = 'data/stereotypes.csv'
 
-# Function to load stereotypes from CSV
 def load_stereotypes():
     stereotypes = {}
     try:
         with open(STEREOTYPES_FILE, mode='r') as file:
             csv_reader = csv.reader(file)
             for row in csv_reader:
-                kc, level = row
-                stereotypes[kc.strip('"')] = level  # Remove quotes when loading
+                topic, level = row
+                stereotypes[topic.strip('"')] = level
     except FileNotFoundError:
-        # Initialize with default values if the file doesn't exist
         stereotypes = {
             "1.1": "novice",
             "1.2": "novice",
@@ -25,98 +24,96 @@ def load_stereotypes():
         }
     return stereotypes
 
-# Function to save stereotypes to CSV (with KC in quotes)
 def save_stereotypes(stereotypes):
+    print("Saving stereotypes to CSV...")  # Debugging: Start of save
     with open(STEREOTYPES_FILE, mode='w', newline='') as file:
-        csv_writer = csv.writer(file, quoting=csv.QUOTE_ALL)  # Ensure KC is wrapped in quotes
-        for kc, level in stereotypes.items():
-            csv_writer.writerow([kc, level])
+        csv_writer = csv.writer(file, quoting=csv.QUOTE_ALL)
+        for topic, level in stereotypes.items():
+            print(f"Saving: Topic = {topic}, Level = {level}")  # Debugging: Save each topic
+            csv_writer.writerow([topic, level])
+    print("Stereotypes saved successfully.\n")  # Debugging: End of save
 
-# Load prequiz data from CSV
 def load_prequiz_data():
     questions_data = []
     csv_file_path = "data/prequiz.csv"
-
     with open(csv_file_path, mode='r') as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
-            kc = row['KC']  # KC is the first column in your CSV
+            topic = row['Topic']
             question = row['Question']
             options = [row['Answer'], row['Option1'], row['Option2'], row['Option3']]
-            random.shuffle(options)  # Shuffle the options to randomize order
+            random.shuffle(options)
             questions_data.append({
-                'kc': kc,
+                'topic': topic,
                 'question': question,
                 'options': options,
                 'correct_answer': row['Answer']
             })
     return questions_data
 
-# Function to update the skill level for a KC based on correctness
-def update_skill_level(kc, correct_answers, stereotypes):
-    # Update stereotype based on correct answers
-    if correct_answers >= 2:
-        stereotypes[kc] = "advanced"
-    else:
-        stereotypes[kc] = "novice"
-    save_stereotypes(stereotypes)  # Save the updated stereotypes to CSV
-
-# Prequiz route to handle the quiz
 @prequiz.route('/prequiz', methods=['GET', 'POST'])
 def prequiz_route():
     questions = load_prequiz_data()
-    stereotypes = load_stereotypes()  # Load the current stereotypes from CSV
+    stereotypes = load_stereotypes()
 
     if request.method == 'POST':
         selected_option = request.form.get('option')
         current_index = int(request.form.get('current_index'))
-        score = int(request.form.get('score'))
+        
+        # Retrieve topic_scores from the form, ensure persistence between requests
+        topic_scores = json.loads(request.form.get('topic_scores') or '{}')
+        
 
-        # Get the current KC
-        current_kc = questions[current_index]['kc']
+        # Track score for the current topic
+        current_topic = questions[current_index]['topic']
+        is_correct = selected_option == questions[current_index]['correct_answer']
+        
+        # Debugging: Show the current topic and whether the answer was correct
+        print(f"Question {current_index + 1} - Topic: {current_topic}, Selected Option: {selected_option}, Correct: {is_correct}")
 
-        # Check if the selected option is correct
-        if selected_option == questions[current_index]['correct_answer']:
-            score += 1
+        # Increment topic score if the answer is correct
+        if is_correct:
+            if current_topic in topic_scores:
+                topic_scores[current_topic] += 1
+            else:
+                topic_scores[current_topic] = 1
 
-        # Track KC correctness for every 2 questions
-        if (current_index + 1) % 2 == 0:  # After every two questions for the same KC
-            correct_answers = 0
+        # Debugging: Show topic scores after each question
+        print(f"Topic Scores after question {current_index + 1}: {topic_scores}")
 
-            # Check last 2 questions to count correct answers
-            for i in range(current_index - 1, current_index + 1):
-                if request.form.get(f'option_{i}') == questions[i]['correct_answer']:
-                    correct_answers += 1
-
-            # Update the skill level based on the correctness of the last 2 questions
-            update_skill_level(current_kc, correct_answers, stereotypes)
-
-        # Move to the next question or finish the quiz
+        # Move to the next question
         current_index += 1
         if current_index >= len(questions):
+            # Quiz is completed; update level for each topic based on pairs of questions
+            for topic, correct_count in topic_scores.items():
+                if correct_count >= 2:  # If both questions for the topic were correct
+                    stereotypes[topic] = "advanced"
+                else:
+                    stereotypes[topic] = "novice"
+                # Debugging: Show each topic level update
+                print(f"Updating Topic '{topic}' to Level '{stereotypes[topic]}' based on correct count of {correct_count}")
+                
+            save_stereotypes(stereotypes)
+
+            # Redirect to home or results page
             return redirect(url_for('home.home_route'))
 
+        # Render the next question
         return render_template(
             'prequiz.html',
             question=questions[current_index],
             current_index=current_index,
-            score=score,
+            topic_scores=json.dumps(topic_scores),  # Persist topic_scores across requests
             total=len(questions)
         )
 
-    # Start with the first question
+    # Initial GET request to start the quiz
     current_index = 0
-    score = 0
+    topic_scores = {}
     return render_template(
         'prequiz.html',
         question=questions[current_index],
         current_index=current_index,
-        score=score,
+        topic_scores=json.dumps(topic_scores),  # Initialize as JSON
         total=len(questions)
     )
-
-@prequiz.route('/prequiz/result')
-def result():
-    score = int(request.args.get('score'))
-    total = int(request.args.get('total'))
-    return render_template('result.html', score=score, total=total)

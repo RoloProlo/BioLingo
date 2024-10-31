@@ -6,17 +6,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
-    <title>Lesson</title>
+    <title>Lesson - {{ current_kc }}</title>
 </head>
 
 <body>
     <div class="lesson-container">
         <!-- Display the current lesson content -->
-        <p>{{ lesson_text }}</p>
+        <h2>{{ current_kc }}: {{ lesson_text }}</h2>
 
         <!-- Back and Next buttons -->
         <form method="POST" action="{{ url_for('lesson.lesson_route') }}">
             <input type="hidden" name="current_index" value="{{ current_index }}">
+            <input type="hidden" name="kc" value="{{ current_kc.split('.')[0] + '.' + current_kc.split('.')[1] }}">
 
             <!-- Back button -->
             <button type="submit" class="next-button" name="back" {% if disable_back %} disabled {% endif %}>⬅️ Back</button>

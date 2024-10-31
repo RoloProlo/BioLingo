@@ -1,17 +1,43 @@
-<!-- kcquiz_result.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
-    <title>Quiz Result</title>
+    <title>Quiz Results</title>
 </head>
+
 <body>
-    <div class="quiz-container">
-        <h1>Quiz Completed!</h1>
-        <p>You scored {{ score }} out of {{ total }}</p>
-        <a href="/home">Back to Home</a>
+    <div class="lesson-container">
+        <!-- Display quiz results -->
+        <h2 class="result-title">Quiz Results</h2>
+        <p>Total Score: {{ score }} / {{ total }}</p>
+
+        <!-- Iterate over each result entry -->
+        {% for result in results %}
+        <div class="result-question">
+            <h3>Question {{ loop.index }} - {{ result['question'] }}</h3>
+            <p><strong>Your Answer:</strong> {{ result['given_answer'] }}</p>
+
+            {% if not result['is_correct'] %}
+            <p class="feedback-incorrect">
+                ❌ <strong>Incorrect.</strong> The correct answer was: {{ result['correct_answer'] }}
+            </p>
+            {% else %}
+            <p class="feedback-correct">✅ <strong>Correct!</strong></p>
+            {% endif %}
+
+            <p><strong>Feedback:</strong> {{ result['feedback'] }}</p>
+        </div>
+        <hr>
+        {% endfor %}
+
+        <!-- Back to Home button -->
+        <div class="action-button">
+            <a href="{{ url_for('home.home_route') }}" class="back-button">Back home</a>
+        </div>
     </div>
 </body>
+
 </html>

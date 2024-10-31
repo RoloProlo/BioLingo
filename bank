@@ -1,0 +1,210 @@
+import csv
+import random
+import json
+from flask import Blueprint, render_template, request, redirect, url_for
+
+kcquiz = Blueprint('kcquiz', __name__, template_folder='templates')
+STEREOTYPES_FILE = 'data/stereotypes.csv'
+ANSWERS_FILE = 'data/answers_log.csv'  # CSV file to store quiz answers
+
+# Function to load stereotype level based on topic
+def load_stereotype_level(topic):
+    try:
+        with open(STEREOTYPES_FILE, mode='r') as file:
+            csv_reader = csv.reader(file)
+            for row in csv_reader:
+                csv_topic, level = row
+                if csv_topic.strip('"') == topic:
+                    return level
+    except FileNotFoundError:
+        pass
+    return "novice"  # Default to novice if no entry is found
+
+# Function to load KC quiz data
+def load_kcquiz_data(topic, kc, limit=2):
+    questions_data = []
+    csv_file_path = "data/kcquiz.csv"
+
+    with open(csv_file_path, mode='r') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            row_topic, row_kc = row['KC'].split('.')
+            if row_topic == topic and row_kc == kc:
+                options = [row['CorrectAnswer'], row['Option1'], row['Option2'], row['Option3']]
+                random.shuffle(options)
+                questions_data.append({
+                    "question": row['Question'],
+                    "options": options,
+                    "correct_answer": row['CorrectAnswer'],
+                    "feedback": {
+                        row['Option1']: row['FeedbackOption1'],
+                        row['Option2']: row['FeedbackOption2'],
+                        row['Option3']: row['FeedbackOption3'],
+                        row['CorrectAnswer']: "Correct! Well done."
+                    }
+                })
+            if len(questions_data) >= limit:
+                break
+
+    return questions_data
+
+# Function to log each answer to a CSV file, overwriting previous entries for the same question
+def log_answer_to_csv(kc, question, given_answer, correct_answer, is_correct):
+    records = []
+    question_id = kc  # using topic.kc format as the unique question ID
+
+    # Read existing records to prevent duplicate entries
+    try:
+        with open(ANSWERS_FILE, mode='r', newline='') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                # If this question already exists, overwrite it
+                if row[0] == question_id:
+                    continue
+                records.append(row)
+    except FileNotFoundError:
+        pass  # If the file doesn't exist, create it below
+
+    # Append new/updated record for the current question
+    records.append([question_id, question, given_answer, correct_answer, is_correct])
+
+    # Write back all records, effectively overwriting the question's previous entry
+    with open(ANSWERS_FILE, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(records)
+
+@kcquiz.route('/kcquiz/<kc>', methods=['GET', 'POST'])
+def kcquiz_route(kc):
+    try:
+        topic, specific_kc = kc.split('.')[:2]
+    except ValueError:
+        return "Invalid KC format", 400
+
+    questions = load_kcquiz_data(topic, specific_kc)
+    stereotype_level = load_stereotype_level(topic)
+
+    if not questions:
+        return render_template('kcquiz_error.html', message=f"No questions available for KC: {kc}")
+
+    # Initialize results list to collect question outcomes for immediate feedback
+    results = request.form.get('results')
+    if results:
+        results = json.loads(results)
+    else:
+        results = []
+
+    if request.method == 'POST':
+        selected_option = request.form.get('option')
+        current_index = int(request.form.get('current_index'))
+        score = int(request.form.get('score'))
+        is_next = request.form.get('is_next') == 'true'
+        
+        question = questions[current_index]
+        correct_answer = question['correct_answer']
+
+        # Check if the answer is correct
+        is_correct = selected_option == correct_answer
+        if is_correct:
+            score += 1
+
+        # Append result for feedback and display
+        results.append({
+            'question': question['question'],
+            'given_answer': selected_option,
+            'correct_answer': correct_answer,
+            'feedback': question['feedback'][selected_option] if not is_correct else "Correct! Well done.",
+            'is_correct': is_correct
+        })
+
+        # Log the answer to CSV
+        log_answer_to_csv(kc, question['question'], selected_option, correct_answer, is_correct)
+
+        # Move to the next question or go to the results page if done
+        if is_next:
+            current_index += 1
+            if current_index >= len(questions):
+                # Redirect to results page with collected results
+                return redirect(url_for('kcquiz.kcquiz_result', kc=kc, score=score, total=len(questions), results=json.dumps(results)))
+
+            # Continue with the next question if not finished
+            return render_template(
+                'kcquiz.html',
+                question=questions[current_index],
+                current_index=current_index,
+                score=score,
+                total=len(questions),
+                kc=kc,
+                stereotype_level=stereotype_level,
+                show_feedback=False,
+                feedback=None,
+                disable_options=False,
+                button_text="Next",
+                results=json.dumps(results)
+                
+            )
+
+        # Show feedback for the current answer
+        feedback = question['feedback'][selected_option] if not is_correct else "Correct! Well done."
+        return render_template(
+            'kcquiz.html',
+            question=question,
+            current_index=current_index,
+            score=score,
+            total=len(questions),
+            kc=kc,
+            stereotype_level=stereotype_level,
+            show_feedback=True,
+            feedback=feedback,
+            disable_options=not is_correct,  # Disable options if incorrect and novice level
+            button_text="Next" if is_correct else "Submit",
+            results=json.dumps(results)
+        )
+
+    # Initial setup for the quiz
+    current_index = 0
+    score = 0
+    return render_template(
+        'kcquiz.html',
+        question=questions[current_index],
+        current_index=current_index,
+        score=score,
+        total=len(questions),
+        kc=kc,
+        stereotype_level=stereotype_level,
+        show_feedback=False,
+        feedback=None,
+        disable_options=False,
+        button_text="Submit",
+        results=json.dumps(results)
+    )
+
+@kcquiz.route('/kcquiz_result/<kc>', methods=['GET'])
+def kcquiz_result(kc):
+    score = int(request.args.get('score', 0))
+    total = int(request.args.get('total', 0))
+    results = json.loads(request.args.get('results', '[]'))
+
+    # Load additional results from the CSV file to display all question data
+    csv_results = []
+    try:
+        with open(ANSWERS_FILE, mode='r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0] == kc:  # Match kc ID (e.g., "1.1")
+                    csv_results.append({
+                        'question': row[1],
+                        'given_answer': row[2],
+                        'correct_answer': row[3],
+                        'is_correct': row[4] == 'True'
+                    })
+    except FileNotFoundError:
+        pass  # If the file doesn't exist, we just display an empty result list
+
+    # Render the results page
+    return render_template(
+        'kcquiz_result.html',
+        score=score,
+        total=total,
+        kc=kc,
+        results=csv_results
+    )
