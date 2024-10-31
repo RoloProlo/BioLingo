@@ -21,6 +21,15 @@
             </div>
 
             <form method="POST" action="{{ url_for('kcquiz.kcquiz_route', kc=kc) }}" onsubmit="setIsNext()">
+                <!-- Feedback Box: Always Visible -->
+                <div class="feedback-box" style="display: block; border: 1px solid #e0e0e0; padding: 10px; margin-top: 20px; background-color: #f8f9fa;">
+                    {% if feedback %}
+                        <p><strong>{{ feedback }}</strong></p>
+                    {% else %}
+                        <p style="color: #888;">Submit your answer to see feedback here.</p>
+                    {% endif %}
+                </div>
+
                 <div class="answers">
                     {% for option in question['options'] %}
                         <label class="answer-option {{ 'selected' if selected_option == option else '' }}">
@@ -32,14 +41,7 @@
                     {% endfor %}
                 </div>
                 
-                <!-- Feedback Box: Always Visible -->
-                <div class="feedback-box" style="display: block; border: 1px solid #e0e0e0; padding: 10px; margin-top: 20px; background-color: #f8f9fa;">
-                    {% if feedback %}
-                        <p><strong>{{ feedback }}</strong></p>
-                    {% else %}
-                        <p style="color: #888;">Submit your answer to see feedback here.</p>
-                    {% endif %}
-                </div>
+                
 
                 <!-- Hidden fields to maintain state -->
                 <input type="hidden" name="current_index" value="{{ current_index }}">
