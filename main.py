@@ -1,8 +1,8 @@
 from flask import Flask, render_template, redirect, url_for
-from prequiz import load_prequiz_data, prequiz  # Import prequiz blueprint and functions
-from home import home  # Import the home blueprint
-from lesson import lesson  # Import lesson blueprint
-from kcquiz import kcquiz  # Import the new KCquiz Blueprint
+from prequiz import load_prequiz_data, prequiz 
+from home import home  
+from lesson import lesson 
+from kcquiz import kcquiz 
 
 
 
@@ -11,8 +11,8 @@ app = Flask(__name__)
 # Register Blueprints
 app.register_blueprint(prequiz, url_prefix='/prequiz')
 app.register_blueprint(home, url_prefix='/home')
-app.register_blueprint(lesson, url_prefix='/lesson')  # Register with a URL prefix
-app.register_blueprint(kcquiz, url_prefix='/kcquiz')  # Register the KCquiz Blueprint
+app.register_blueprint(lesson, url_prefix='/lesson') 
+app.register_blueprint(kcquiz, url_prefix='/kcquiz')  
 
 
 
@@ -27,7 +27,7 @@ def prequiz_route():
     current_index = 0
     score = 0
     questions = load_prequiz_data()
-    selected_options = {}  # Initialize selected_options as an empty dictionary
+    selected_options = {} 
 
     if not questions:
         return "No questions available."
@@ -38,7 +38,7 @@ def prequiz_route():
         current_index=current_index,
         score=score,
         total=len(questions),
-        selected_options=selected_options  # Pass selected_options on the initial load
+        selected_options=selected_options 
     )
 
 

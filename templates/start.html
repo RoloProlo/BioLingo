@@ -26,8 +26,10 @@
             <h2>What do you already know?</h2>
             <div class="assesment-buttons">
                 <button class="assessment-button" onclick="window.location.href='/prequiz'">I have some basic knowledge</button>
-                <button class="assessment-button" onclick="window.location.href='/pre_quiz?level=none'">I don’t know anything</button>
-            </div>
+                <form method="POST" action="{{ url_for('home.set_all_novice') }}">
+                    <button type="submit" class="assessment-button">I don’t know anything</button>
+                </form>
+                            </div>
         </main>
         </div>
     </div>

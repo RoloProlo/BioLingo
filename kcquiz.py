@@ -24,19 +24,17 @@ def load_stereotype_level(topic):
             csv_reader = csv.reader(file)
             for row in csv_reader:
                 if len(row) < 2:
-                    continue  # Skip any malformed rows
+                    continue  
                 csv_topic, level = row
-                # Normalize and strip quotes/whitespace
                 csv_topic = csv_topic.strip('"').strip().lower()
-                topic = topic.strip().lower()
-                
+                topic = topic.strip().lower()             
                 
                 
                 if csv_topic == topic:
-                    return level.strip('"').strip().lower()  # Return the level (e.g., "novice", "advanced")
+                    return level.strip('"').strip().lower() 
     except FileNotFoundError:
         pass
-    return "novice"  # Default to novice if no entry is found
+    return "novice" 
 
 
 
@@ -47,7 +45,6 @@ def load_kcquiz_data(topic, kc, limit=2):
     with open(csv_file_path, mode='r') as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
-            # Debug print to see each row being processed
 
             # Extract topic and kc identifiers from the CSV row
             row_topic, row_kc = row['KC'].split('.')
@@ -122,7 +119,6 @@ def kcquiz_route(kc):
         topic_key = kc.split('.')[0]
         specific_kc = kc.split('.')[1] if len(kc.split('.')) > 1 else None
 
-        # Use the topic key (e.g., "1") directly instead of the descriptive topic name
         topic = topic_key
 
 
@@ -256,13 +252,12 @@ def kcquiz_route(kc):
                 stereotype_level=stereotype_level,
                 show_feedback=True,
                 feedback=feedback,
-                disable_options=True,  # Disable options after second incorrect attempt
-                button_text="Next",  # Update button text to "Next" to proceed
+                disable_options=True, 
+                button_text="Next", 
                 results=json.dumps(results),
                 attempts=attempts + 1
             )
 
-        # For correct answers or after the second incorrect attempt, move on
         feedback = "Correct! Well done." if is_correct else question['feedback'][selected_option]
         return render_template(
             'kcquiz.html',
@@ -275,12 +270,11 @@ def kcquiz_route(kc):
             show_feedback=True,
             feedback=feedback,
             disable_options=True,
-            button_text="Next",  # Update button text to "Next" to proceed
+            button_text="Next",  
             results=json.dumps(results),
             attempts=attempts + 1
         )
 
-    # Initial GET request, start the quiz
     return render_template(
         'kcquiz.html',
         question=questions[current_index],
@@ -298,16 +292,13 @@ def kcquiz_route(kc):
     )
 
 def save_completed_kc(kc):
-    # Extract only the first two segments of the KC (e.g., "1.1")
     truncated_kc = ".".join(kc.split(".")[:2])
 
     csv_file_path = 'data/completed_kcs.csv'
-    completed_kcs = set(load_completed_kcs())  # Use a set to avoid duplicates
-    completed_kcs.add(truncated_kc)  # Save only the truncated KC
+    completed_kcs = set(load_completed_kcs())  
+    completed_kcs.add(truncated_kc)  
 
-    print(f"Saving KC: {truncated_kc} to completed_kcs.csv")  # Debugging line
-
-    # Write back to the CSV
+    print(f"Saving KC: {truncated_kc} to completed_kcs.csv")  
     with open(csv_file_path, mode='w', newline='') as file:
         csv_writer = csv.writer(file)
         for kc in completed_kcs:
@@ -324,13 +315,12 @@ def kcquiz_result(kc):
     save_completed_kc(kc)
 
 
-    # Load additional results from the CSV file to display all question data
     csv_results = []
     try:
         with open(ANSWERS_FILE, mode='r') as file:
             reader = csv.reader(file)
             for row in reader:
-                if row[0] == kc:  # Match kc ID (e.g., "1.1")
+                if row[0] == kc: 
                     csv_results.append({
                         'question': row[1],
                         'given_answer': row[2],
@@ -338,9 +328,7 @@ def kcquiz_result(kc):
                         'is_correct': row[4] == 'True'
                     })
     except FileNotFoundError:
-        pass  # If the file doesn't exist, we just display an empty result list
-
-    # Render the results page
+        pass 
     return render_template(
         'kcquiz_result.html',
         score=score,

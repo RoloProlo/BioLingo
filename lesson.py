@@ -3,27 +3,23 @@ import csv
 
 lesson = Blueprint('lesson', __name__, template_folder='templates')
 
-# Load CSV content, extracting the topic from the KC
 def load_lesson_data():
     lesson_data = []
     csv_file_path = 'data/lessons.csv'
 
-    # Open the CSV and map the headers to KC and text
     with open(csv_file_path, mode='r') as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
-            # Extract the first number from KC to be used as the topic
             topic = row['KC'].split('.')[0]
             lesson_data.append({
-                'kc': row['KC'],  # KC column
-                'topic': topic,  # Extracted topic from KC
-                'content': row['text']  # text column
+                'kc': row['KC'],
+                'topic': topic,  
+                'content': row['text'] 
             })
     return lesson_data
 
 @lesson.route('/lessons/<kc>', methods=['GET'])
 def lessons_by_kc(kc):
-    # Load all lessons from the CSV file
     csv_file_path = "data/lessons.csv"
     lessons = []
 
@@ -37,7 +33,6 @@ def lessons_by_kc(kc):
                     'title': row['title']
                 })
 
-    # If lessons are found, start with the first lesson
     if lessons:
         current_index = 0
         current_lesson = lessons[current_index]
@@ -52,7 +47,6 @@ def lessons_by_kc(kc):
             is_last_in_section=len(lessons) == 1
         )
 
-    # If no lessons found, handle gracefully (e.g., show an error page or message)
     return "No lessons found for this KC", 404
 
 
@@ -62,7 +56,6 @@ def lesson_route():
     kc_prefix = request.args.get('kc') or request.form.get('kc')
     current_index = int(request.form.get('current_index', 0))
 
-    # Load all lessons that match the given KC prefix
     csv_file_path = "data/lessons.csv"
     lessons = []
 
@@ -76,17 +69,14 @@ def lesson_route():
                     'title': row['title']
                 })
 
-    # Determine which lesson to show based on current index
     if request.method == 'POST':
         if 'next' in request.form and current_index < len(lessons) - 1:
             current_index += 1
         elif 'back' in request.form and current_index > 0:
             current_index -= 1
 
-    # Get the current lesson content
     current_lesson = lessons[current_index]
 
-    # Determine if navigation buttons should be disabled
     disable_back = current_index == 0
     disable_next = current_index == len(lessons) - 1
     is_last_in_section = current_index == len(lessons) - 1
